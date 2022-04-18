@@ -122,6 +122,20 @@ def write_vn(text,device):
         time.sleep(0.05)
         device.input_text(text[i])
 
+def importContac(device):
+    file1 = open('contacts/ho.txt', 'r', encoding="utf8").readlines()
+    file2 = open('contacts/phone.txt', 'r').readlines()
+    file3 = open('contacts/ten.txt', 'r', encoding="utf8").readlines()
+    clear_package("com.android.providers.contacts",device)
+    for i in range(random.randint(10,20)):
+        text1 = str(file1[random.randint(0,70)])
+        text2 = str(file2[random.randint(0,70)])
+        text3 = str(file3[random.randint(0,70)])
+        text = text1  + text3
+        device.shell('am start -a android.intent.action.INSERT -t vnd.android.cursor.dir/contact -e name "{0}" -e phone {1}'.format(text,text2))
+        device.input_keyevent(4)
+        device.input_keyevent(4)
+
 def ToCharArray(text):
     arr = []
     for i in text:
@@ -290,26 +304,176 @@ def logout(device):
 
 def NoxregFacebook(i):
 
-    #subprocess.run('G:/An/python/tool/test_openNox.py {}'.format(i), shell=True)
-    # while True:
-    #     try:
-    #         time.sleep(10)
-    #         cmd = subprocess.run('adb shell input tap 1 1').returncode
-    #         if not cmd:
-    #             break
-    #     except:
-    #         print('Chưa chạy')
-    #time.sleep(40)
     file_1 = open(ho, "r", encoding="utf8").readlines()
     file_2 = open(ten, "r", encoding="utf8").readlines()
 
     device = getDevice(i)
     print("Đang nhập proxy")
 
-    proxy = get_new_proxyTM(api)
+    proxy = get_new_proxyTM('c86fbeaca7eb5a4b2fb07d3697410bab')
 
     if proxy == '':
-        proxy = get_current_proxyTM(api)
+        proxy = get_current_proxyTM('c86fbeaca7eb5a4b2fb07d3697410bab')
+
+    device.shell(("settings put global http_proxy {}").format(proxy))
+    #time.sleep(1)
+    # print('Đang uninstall facebook')
+    # device.uninstall('com.facebook.katana')
+    # #time.sleep(1)
+    # #
+    # print('Đang install facebook')
+    # device.install('apps/facebook.apk')
+    # time.sleep(1)
+
+    print("Đang nhập danh bạ")
+    importContac(device)
+
+    print("Đang xóa dữ liệu Facebook")
+    clear_package("com.facebook.katana",device)
+
+    print("Đang cho phép các quyền")
+    grant("com.facebook.katana", " android.permission.READ_CONTACTS",device)
+    grant("com.facebook.katana", " android.permission.CALL_PHONE",device)
+    grant("com.facebook.katana", " android.permission.CAMERA",device)
+    grant("com.facebook.katana", " android.permission.ACCESS_FINE_LOCATION",device)
+    grant("com.facebook.katana", " android.permission.READ_EXTERNAL_STORAGE",device)
+
+    time.sleep(0.5)
+    print("Đang mở Facebook")
+    device.shell("monkey -p com.facebook.katana -c android.intent.category.LAUNCHER 1")
+
+    time.sleep(20)
+    print("Nhấn Tạo tài khoản...")
+    click_ocr("image/create.PNG",device)
+
+    time.sleep(30)
+    print("Nhấn Next...")
+    click_ocr("image/next.PNG",device)
+    time.sleep(2)
+
+    # Cần đọc vào file
+    print("Đang nhập họ và tên")
+    time.sleep(random.randint(1,2))
+    write_vn(file_1[random.randint(0,1375)],device)
+
+    device.input_tap(177,188)
+    write_vn(file_2[random.randint(0,212)],device)
+    time.sleep(random.randint(1,2))
+
+    print("Nhấn next")
+    click_ocr("image/next.PNG",device)
+    time.sleep(random.randint(1,2))
+
+    # Nghiên cứu codetextnow hoặc tempmail
+
+    print("Điền ngày tháng năm...")
+    time.sleep(random.randint(1,2))
+    print("Next lần 1...")
+    click_ocr("image/next.PNG",device)
+
+    time.sleep(random.randint(1,2))
+    print("Next lần 2...")
+    click_ocr("image/next.PNG",device)
+    time.sleep(random.randint(1,2))
+
+    device.input_tap(146, 146)
+    time.sleep(random.randint(1,2))
+    write_vn(str(random.randint(18,50)),device)
+    time.sleep(random.randint(1,2))
+    click_ocr("image/next.PNG",device)
+    time.sleep(random.randint(1,2))
+
+    click_ocr("image/ok2.PNG",device)
+
+    time.sleep(2)
+    print("Điền giới tính")
+    click_ocr("image/gender.PNG",device)
+    time.sleep(random.randint(1,2))
+    click_ocr("image/next.PNG",device)
+    time.sleep(random.randint(1,2))
+
+    print("Đang điền số điện thoại")
+    clear_input(13,device)
+    time.sleep(random.randint(1,2))
+    #click_ocr("image/reg_by_mail.PNG", device)
+    #time.sleep(random.randint(1,2))
+
+    number, id = get_number_VOTP('e1b2f796b07b4a549e4a840e7d9c15af')
+    write_vn('+84' + number,device)
+    time.sleep(random.randint(1,2))
+    click_ocr('image/next.PNG',device)
+
+    time.sleep(random.randint(1,2))
+    print("Nhập password")
+    passwd = password()
+    write_vn(passwd, device)
+    time.sleep(random.randint(1,2))
+    click_ocr("image/next.PNG",device)
+    time.sleep(random.randint(1,2))
+
+    print("Đang tạo tài khoản")
+    click_ocr("image/regist.PNG",device)
+    time.sleep(25)
+
+    click_ocr('image/other.PNG',device)
+    time.sleep(random.randint(1,2))
+    click_ocr('image/ok.PNG',device)
+    time.sleep(random.randint(1,2))
+
+    while True:
+        time.sleep(random.randint(1,2))
+        otp = get_otp_VOTP('e1b2f796b07b4a549e4a840e7d9c15af',id)
+        if otp != None:
+            break
+
+    write_vn(otp,device)
+    time.sleep(random.randint(1,2))
+    click_ocr('image/confirm.PNG',device)
+    time.sleep(10)
+
+    click_ocr('image/skip.PNG',device)
+    time.sleep(10)
+    click_ocr("image/skip.PNG",device)
+    time.sleep(random.randint(1,2))
+    click_ocr("image/skip.PNG", device)
+    time.sleep(random.randint(1, 2))
+    click_ocr('image/other.PNG',device)
+
+    print("Đang hoàn tất reg")
+    time.sleep(3)
+    print('Đang lấy 2fa')
+    two_fa = turn_2fa(device, i)
+
+    print("Đã reg xong")
+
+    with open("password_2fa.txt", "a+")as fp:
+        fp.write('\n')
+        fp.write(number + '|' + passwd + '|' + two_fa)
+
+    time.sleep(1)
+    print("Đang log out")
+
+    logout(device)
+    time.sleep(3)
+
+    print("Đang reg tiếp theo...")
+    #closeNew(i+1)
+
+def LDregFacebook(i):
+
+    startNewLD(i)
+
+    time.sleep(40)
+    file_1 = open(ho, "r", encoding="utf8").readlines()
+    file_2 = open(ten, "r", encoding="utf8").readlines()
+
+    device = getDevice(i)
+    print("Đang nhập proxy")
+
+    proxy = get_new_proxyTM('c86fbeaca7eb5a4b2fb07d3697410bab')
+
+    if proxy == '':
+        proxy = get_current_proxyTM('c86fbeaca7eb5a4b2fb07d3697410bab')
 
     device.shell(("settings put global http_proxy {}").format(proxy))
     #time.sleep(1)
@@ -391,7 +555,7 @@ def NoxregFacebook(i):
     #click_ocr("image/reg_by_mail.PNG", device)
     #time.sleep(random.randint(1,2))
 
-    number, id = get_number_VOTP(api)
+    number, id = get_number_VOTP('fd66a0ef1d8645ddbc5e0e5921d9b523')
     write_vn('+84' + number,device)
     time.sleep(random.randint(1,2))
     click_ocr('image/next.PNG',device)
@@ -415,7 +579,7 @@ def NoxregFacebook(i):
 
     while True:
         time.sleep(random.randint(1,2))
-        otp = get_otp_VOTP(api,id)
+        otp = get_otp_VOTP('fd66a0ef1d8645ddbc5e0e5921d9b523',id)
         if otp != None:
             break
 
@@ -451,8 +615,6 @@ def NoxregFacebook(i):
 
     print("Đang reg tiếp theo...")
     #closeNew(i+1)
-
-
 
 for i in range(thread_num):
     t0 = threading.Thread(target=NoxregFacebook, args=(0,))
